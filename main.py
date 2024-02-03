@@ -19,7 +19,7 @@ from collections import Counter
 import warnings
 warnings.filterwarnings('ignore')
 
-MESSAGE_TYPES = ['text', 'image', 'audio', 'video', 'deleted']
+MESSAGE_TYPES = ['text', 'image', 'audio', 'video', 'deleted', 'call']
 
 with open('stop_words.txt', 'r') as f:
     STOP_WORDS = f.read().split('\n')
@@ -52,8 +52,8 @@ def parse_lines(file_name:str,
             elif ('This message was deleted.' in line[2] or 
                 'You deleted this message.' in line[2]):
                 m_types.append('deleted')
-            elif 'Messages and calls are' in line[2]:
-                continue
+            elif ('Messages and calls are' in line[2] or 'Missed voice call' in line[2]):
+                m_types.append('call')
             else:
                 m_types.append('text')
                 is_text = True
@@ -557,8 +557,8 @@ def main(CHAT_FILE, SAVE_FOLDER, name_in_file_1, name_in_file_2, name_1, name_2,
     
     words_1_list = df[df['name'] == name_1]['message'].tolist()
     words_2_list = df[df['name'] == name_2]['message'].tolist()
-    words_1_list = [word for word in words_1_list if word.lower() not in STOP_WORDS]
-    words_2_list = [word for word in words_2_list if word.lower() not in STOP_WORDS]
+    words_1_list = [word for word in words_1_list if (word.lower() not in STOP_WORDS) and (word != '')]
+    words_2_list = [word for word in words_2_list if (word.lower() not in STOP_WORDS) and (word != '')]
     words_total_list = words_1_list + words_2_list
     words_1 = ' '.join(words_1_list)
     words_2 = ' '.join(words_2_list)
