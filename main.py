@@ -20,6 +20,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 MESSAGE_TYPES = ['text', 'image', 'audio', 'video', 'deleted', 'call']
+punctuation = '.,?!'
 
 with open('stop_words.txt', 'r') as f:
     STOP_WORDS = f.read().split('\n')
@@ -346,7 +347,7 @@ def high_frequency_words(name_1_words:list, name_2_words:list, total_words:list,
     sm = plt.cm.ScalarMappable(cmap = "coolwarm", norm = norm)
 
     fig = plt.figure(figsize = (10, 10), dpi = 300)
-    grid = plt.GridSpec(1, 2, wspace = 0.5)
+    grid = plt.GridSpec(1, 4, wspace = 0.5)
 
     ax0 = fig.add_subplot(grid[0, 0])
     sns.barplot(x = -data[labels[0]], y = data.index, ax = ax0, hue = ratio, 
@@ -357,10 +358,11 @@ def high_frequency_words(name_1_words:list, name_2_words:list, total_words:list,
                 hue_norm = norm, palette = "coolwarm")
     plt.xticks(rotation = 45)
 
+    scale = 300
     ax0.set_xlabel("frequency")
     ax0.set_ylabel("")
-    ax0.set_xticks(range(int(-np.ceil(max(word_freq_1)/100)*100), 
-                        int(-np.floor(min(word_freq_1)/100)*100) + 1, 100))
+    ax0.set_xticks(range(int(-np.ceil(max(word_freq_1)/scale)*scale), 
+                        int(-np.floor(min(word_freq_1)/scale)*scale) + 1, scale))
     ax0.set_yticks([])
     ax0.spines["left"].set_visible(False)
     ax0.spines["top"].set_visible(False)
@@ -370,8 +372,8 @@ def high_frequency_words(name_1_words:list, name_2_words:list, total_words:list,
 
     ax1.set_xlabel("frequency")
     ax1.set_ylabel("")
-    ax1.set_xticks(range(int(np.floor(min(word_freq_2)/100)*100), 
-                        int(np.ceil(max(word_freq_2)/100)*100) + 1, 100))
+    ax1.set_xticks(range(int(np.floor(min(word_freq_2)/scale)*scale), 
+                        int(np.ceil(max(word_freq_2)/scale)*scale) + 1, scale))
     ax1.set_yticks([])
     ax1.spines["left"].set_visible(False)
     ax1.spines["top"].set_visible(False)
@@ -557,8 +559,15 @@ def main(CHAT_FILE, SAVE_FOLDER, name_in_file_1, name_in_file_2, name_1, name_2,
     
     words_1_list = df[df['name'] == name_1]['message'].tolist()
     words_2_list = df[df['name'] == name_2]['message'].tolist()
-    words_1_list = [word for word in words_1_list if (word.lower() not in STOP_WORDS) and (word != '')]
-    words_2_list = [word for word in words_2_list if (word.lower() not in STOP_WORDS) and (word != '')]
+    words_1_list = ' '.join(words_1_list).split(' ')
+    words_2_list = ' '.join(words_2_list).split(' ')
+    translator = str.maketrans('', '', punctuation)
+    words_1_list = [word.lower().translate(translator) for word in words_1_list]
+    words_2_list = [word.lower().translate(translator) for word in words_2_list]
+    words_1_list = [word for word in words_1_list 
+                    if (word not in STOP_WORDS) and (word != '')]
+    words_2_list = [word for word in words_2_list 
+                    if (word not in STOP_WORDS) and (word != '')]
     words_total_list = words_1_list + words_2_list
     words_1 = ' '.join(words_1_list)
     words_2 = ' '.join(words_2_list)
