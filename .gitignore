@@ -163,3 +163,4 @@ cython_debug/
 !stop_words.txt
 *.png
 *.jpg
+*.sh

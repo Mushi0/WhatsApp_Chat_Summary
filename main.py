@@ -198,6 +198,7 @@ def time_in_year_analyse(df:pd.DataFrame, year:int, save_name:str):
 
     grouper = pd.Grouper(key = "datetime", freq = "W-MON")
     data = df.groupby(grouper).count()['name'].to_frame()
+    data = data.reindex(pd.date_range(start = wStart, end = wEnd, freq = "W-MON"))
     data.index = pd.date_range(start = wStart, end = wEnd, freq = "W-MON").strftime("%m-%d")
     data = data.fillna(0)
     data.columns = ["Count"]
@@ -235,6 +236,7 @@ def enthusiasm_analyse(df:pd.DataFrame, labels:list, year:int, save_name:str):
     df_W2 = df[df['name'] == labels[1]].groupby(grouper).count()['name']
 
     data = pd.DataFrame({"E": (df_W1 - df_W2) / (df_W1 + df_W2)})
+    data = data.reindex(pd.date_range(start = wStart, end = wEnd, freq = "W-MON"))
     data.index = pd.date_range(start = wStart, end = wEnd, freq = "W-MON").strftime("%m-%d")
     data = data.fillna(0)
 
@@ -438,6 +440,7 @@ def sentiment_in_year_analyse(dfE:pd.DataFrame, year:int, save_name:str):
 
     grouper = pd.Grouper(key="datetime", freq="W-MON")
     data = dfE.groupby(grouper)["score"].mean().to_frame()
+    data = data.reindex(pd.date_range(start = wStart, end = wEnd, freq = "W-MON"))
     data.index = pd.date_range(start = wStart, end = wEnd, freq = "W-MON").strftime("%m-%d")
     data = data.fillna(0)
     data.columns = ["score"]
